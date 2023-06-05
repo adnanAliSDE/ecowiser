@@ -1,4 +1,7 @@
-from django.urls import path, include
+from django.urls import path
 from home import views
 
-urlpatterns = [path("", views.index, name="Home")]
+urlpatterns = [
+    path("", views.index, name="Home"),
+    path("search", views.search, name="search"),
+]

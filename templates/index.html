@@ -7,6 +7,7 @@
     <title>SubEx.io | Search your video titles</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
+  {% load static %}
   <body>
     <header class="p-4 text-center bg-green-400">
       <h1 class="text-3xl font-bold mb-4">SubEx</h1>
@@ -14,8 +15,9 @@
     </header>
     <main>
       <section class="uploadSection p-4">
+        {% if processed is None %}
         <h2 class="text-2xl mb-4 font-bold">Upload a video</h2>
-        <form action="/" method="post">
+        <form action="/" enctype="multipart/form-data" method="post">
           {% csrf_token %}
           <input
             class="bg-green-300 mb-4"
@@ -25,20 +27,52 @@
           />
           <br />
           <button
-            class="bg-green-400 rounded-xl px-8 py-2 font-bold"
+            class="btn bg-green-400 rounded-xl px-8 py-2 font-bold"
             type="submit"
           >
             Upload
           </button>
         </form>
+        {% else %}
+        <h3 class="font-bold text-xl">
+          Your file({{title}}) has successfully been processed. Proceed to
+          search
+        </h3>
+        {% endif %}
       </section>
       <section class="search bg-gray-100 p-4">
         <h2 class="text-2xl font-bold mb-4">Search Subtitles</h2>
         <form class="w-full" action="/search" method="post">
-          <input class="py-2 px-2" type="text" name="search" id="search" />
-          <button type="submit" class="btn bg-green-400">Search</button>
+          {% csrf_token %}
+          <input hidden type="text" name="videoId" value="{{videoId}}" />
+          <input class="py-2 px-2 m-0" type="text" name="phrase" id="search" />
+          <button
+            id="submitBtn"
+            type="submit"
+            class="btn py-2 m-0 px-2 bg-green-400"
+          >
+            Search
+          </button>
         </form>
       </section>
+      {% if result %}
+      <section class="populateResults p-4">
+        <h2 class="text-2xl font-bold">Results({{result|length}})</h2>
+        <div class="cards">
+          {% for item in result %}
+          <div class="card mt-3">
+            <div class="header font-bold p-3 bg-green-400">
+              <p>
+                {{item.startTime}}
+                <span class="font-normal">to </span> {{item.endTime}}
+              </p>
+            </div>
+            <div class="text p-3 bg-green-200">{{item.text}}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
     </main>
   </body>
 </html>
