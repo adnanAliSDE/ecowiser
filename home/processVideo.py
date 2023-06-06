@@ -16,7 +16,7 @@ binPath = (
 )
 
 # for linux
-# binPath = "ccextractor"
+binPath = "ccextractor"
 
 
 def writeSubtitles(fileName, output="output.srt"):
