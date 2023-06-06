@@ -63,7 +63,14 @@ def index(request):
                 for chunk in video:
                     f.write(chunk)
             subtitleFile = f"{videoId}.srt"
-            processVideo.writeSubtitles(videoName, subtitleFile)
+
+            writeSubs=Process(target=processVideo.writeSubtitles,args=(videoName, subtitleFile))
+            saveVideo = Process(target=processVideo.saveVideoToS3, args=(videoName,))
+            writeSubs.start()
+            saveVideo.start()
+
+            writeSubs.join()
+            saveVideo.join()
 
             context = {
                 "videoId": videoId,
@@ -72,19 +79,7 @@ def index(request):
                 "processed": True,
             }
 
-            # Start the processes
-            saveVideo = Process(target=processVideo.saveVideoToS3, args=(videoName,))
-            saveSubs = Process(
-                target=processVideo.saveSubsToDB,
-                args=(videoName, subtitleFile, videoId),
-            )
-
-            saveVideo.start()
-            saveSubs.start()
-
-            # Wait for the processes to finish
-            saveVideo.join()
-            saveSubs.join()
+            processVideo.saveSubsToDB(videoName, subtitleFile, videoId)
 
             os.remove(videoName)
             os.remove(subtitleFile)
