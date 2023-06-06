@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 import os
-from multiprocessing import Process
+
+# from multiprocessing import Process
 from . import processVideo
 import boto3
 
@@ -11,6 +12,7 @@ table = dynamodb.Table("subtitles")
 # Create your views here.
 def index(request):
     if request.method == "POST":
+        randomValue = request.POST["csrfmiddlewaretoken"]
         videoFormats = [
             "webm",
             "mkv",
@@ -62,15 +64,12 @@ def index(request):
             with open(videoName, "wb+") as f:
                 for chunk in video:
                     f.write(chunk)
-            subtitleFile = f"{videoId}.srt"
+            subtitleFile = f"{videoId}_{randomValue}_{title}.srt"
 
-            writeSubs=Process(target=processVideo.writeSubtitles,args=(videoName, subtitleFile))
-            saveVideo = Process(target=processVideo.saveVideoToS3, args=(videoName,))
-            writeSubs.start()
-            saveVideo.start()
-
-            writeSubs.join()
-            saveVideo.join()
+            writeStatus = processVideo.writeSubtitles(videoName, subtitleFile)
+            if writeStatus == "empty file":
+                return HttpResponse("Your file doesn't have any subtitles<a href='/'>Go back</a>")
+            processVideo.saveVideoToS3(videoName)
 
             context = {
                 "videoId": videoId,

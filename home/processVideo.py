@@ -16,7 +16,7 @@ binPath = (
 )
 
 # for linux
-binPath = "ccextractor"
+# binPath = "ccextractor"
 
 
 def writeSubtitles(fileName, output="output.srt"):
@@ -28,12 +28,14 @@ def writeSubtitles(fileName, output="output.srt"):
     ]
 
     result = subprocess.run(command)
-    status = "success"
-    if result.returncode == 0:
-        return status
+    data = ""
+    with open(output, "r") as f:
+        data = f.read()
+
+    if result.returncode == 0 and data == "":
+        return "empty file"
     else:
-        status = "failed"
-        return status
+        raise ValueError("Process failed")
 
 
 def getSubtitles(videoId):
