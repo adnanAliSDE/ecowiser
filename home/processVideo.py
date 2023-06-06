@@ -10,9 +10,13 @@ os.environ["AWS_DEFAULT_REGION"] = "ap-south-1"
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("subtitles")
 
+# for windows
 binPath = (
     "C:\\Users\\ansari\Downloads\\CCExtractor_win_portable\\ccextractorwinfull.exe"
 )
+
+# for linux
+binPath = "ccextractor"
 
 
 def writeSubtitles(fileName, output="output.srt"):
