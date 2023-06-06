@@ -1,6 +1,11 @@
 from django.shortcuts import render, HttpResponse, redirect
 import os
+from multiprocessing import Process
 from . import processVideo
+import boto3
+
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table("subtitles")
 
 
 # Create your views here.
@@ -52,23 +57,37 @@ def index(request):
         videoFormat = title.split(".")[-1]
         videoName = ""
         if videoFormat in videoFormats:
-            videoId = 2  # get from DB
-            videoName = f"{videoId}.{videoFormat}"
+            videoId = table.item_count + 1  # get from DB
+            videoName = f"vId_{videoId}_{title}"
             with open(videoName, "wb+") as f:
                 for chunk in video:
                     f.write(chunk)
             subtitleFile = f"{videoId}.srt"
             processVideo.writeSubtitles(videoName, subtitleFile)
-            processVideo.saveSubsToDB(videoId)
-            processVideo.saveVideoToS3(videoId)
-            # os.remove(videoName)
-            # os.remove(subtitleFile)
+
             context = {
                 "videoId": videoId,
                 "result": [],
                 "title": title,
                 "processed": True,
             }
+
+            # Start the processes
+            saveVideo = Process(target=processVideo.saveVideoToS3, args=(videoName,))
+            saveSubs = Process(
+                target=processVideo.saveSubsToDB,
+                args=(videoName, subtitleFile, videoId),
+            )
+
+            saveVideo.start()
+            saveSubs.start()
+
+            # Wait for the processes to finish
+            saveVideo.join()
+            saveSubs.join()
+
+            os.remove(videoName)
+            os.remove(subtitleFile)
             return render(request, "index.html", context)
         else:
             return HttpResponse(
@@ -81,9 +100,9 @@ def search(request):
     if request.method == "POST":
         videoId = request.POST["videoId"]
         phrase = request.POST["phrase"]
+        videoId = int(videoId)
         result = processVideo.searchPhrase(phrase, videoId)
-        context = {"result": result}
-        print(len(result))
+        context = {"result": result, "processed": True, "videoId": videoId}
         return render(request, "index.html", context)
 
     else:

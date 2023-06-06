@@ -26,17 +26,19 @@
             id="video"
           />
           <br />
-          <button
-            class="btn bg-green-400 rounded-xl px-8 py-2 font-bold"
-            type="submit"
-          >
-            Upload
-          </button>
+          <div class="btnContainer">
+            <button
+              id="videoUpload"
+              class="btn bg-green-400 rounded-xl px-8 py-2 font-bold"
+              type="submit"
+            >
+              Upload
+            </button>
+          </div>
         </form>
         {% else %}
         <h3 class="font-bold text-xl">
-          Your file({{title}}) has successfully been processed. Proceed to
-          search
+          Your file has successfully been processed. Proceed to search
         </h3>
         {% endif %}
       </section>
@@ -44,7 +46,7 @@
         <h2 class="text-2xl font-bold mb-4">Search Subtitles</h2>
         <form class="w-full" action="/search" method="post">
           {% csrf_token %}
-          <input hidden type="text" name="videoId" value="{{videoId}}" />
+          <input hidden type="number" name="videoId" value="{{videoId}}" />
           <input class="py-2 px-2 m-0" type="text" name="phrase" id="search" />
           <button
             id="submitBtn"
@@ -55,7 +57,7 @@
           </button>
         </form>
       </section>
-      {% if result %}
+      {% if result is not None %}
       <section class="populateResults p-4">
         <h2 class="text-2xl font-bold">Results({{result|length}})</h2>
         <div class="cards">
@@ -63,8 +65,8 @@
           <div class="card mt-3">
             <div class="header font-bold p-3 bg-green-400">
               <p>
-                {{item.startTime}}
-                <span class="font-normal">to </span> {{item.endTime}}
+                {{item.start_time}}
+                <span class="font-normal">to </span> {{item.end_time}}
               </p>
             </div>
             <div class="text p-3 bg-green-200">{{item.text}}</div>
@@ -74,5 +76,19 @@
       </section>
       {% endif %}
     </main>
+    {% comment %}
+    <script>
+      const btnContainer = document.querySelector(
+        ".uploadSection .btnContainer"
+      );
+      const uploadForm = document.querySelector(".uploadSection form");
+      const uploadSection = document.querySelector(".uploadSection");
+      btnContainer.onclick = (e) => {
+        console.log(uploadForm);
+        uploadSection.innerHTML = `<div class='container flex justify-center items-center'><p class='animate-spin mr-4 border-green-500 border-2 bl-white w-[50px] h-[50px] p-2 rounded-[50%]' style="border-left: white;"></p><div>Uploading file...</div></div>
+          `;
+      };
+    </script>
+    {% endcomment %}
   </body>
 </html>
