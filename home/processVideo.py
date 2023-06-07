@@ -16,7 +16,7 @@ binPath = (
 )
 
 # for linux
-binPath = "ccextractor"
+# binPath = "ccextractor"
 
 
 def writeSubtitles(fileName, output="output.srt"):
@@ -34,6 +34,8 @@ def writeSubtitles(fileName, output="output.srt"):
 
     if result.returncode == 0 and data == "":
         return "empty file"
+    elif data != "":
+        return "success"
     else:
         raise ValueError("Process failed")
 
