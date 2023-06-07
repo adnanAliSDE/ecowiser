@@ -11,12 +11,12 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("subtitles")
 
 # for windows
-binPath = (
-    "C:\\Users\\ansari\Downloads\\CCExtractor_win_portable\\ccextractorwinfull.exe"
-)
+# binPath = (
+#     "C:\\Users\\ansari\Downloads\\CCExtractor_win_portable\\ccextractorwinfull.exe"
+# )
 
 # for linux
-# binPath = "ccextractor"
+binPath = "ccextractor"
 
 
 def writeSubtitles(fileName, output="output.srt"):
