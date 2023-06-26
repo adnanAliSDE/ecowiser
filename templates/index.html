@@ -1,94 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SubEx.io | Search your video titles</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SubEx.io | Search your video titles</title>
   {% load static %}
-  <body>
-    <header class="p-4 text-center bg-green-400">
-      <h1 class="text-3xl font-bold mb-4">SubEx</h1>
-      <p>Your video subtitle search engine</p>
-    </header>
-    <main>
-      <section class="uploadSection p-4">
-        {% if processed is None %}
-        <h2 class="text-2xl mb-4 font-bold">Upload a video</h2>
-        <form action="/" enctype="multipart/form-data" method="post">
-          {% csrf_token %}
-          <input
-            class="bg-green-300 mb-4"
-            type="file"
-            name="video"
-            id="video"
-          />
-          <br />
-          <div class="btnContainer">
-            <button
-              id="videoUpload"
-              class="btn bg-green-400 rounded-xl px-8 py-2 font-bold"
-              type="submit"
-            >
-              Upload
-            </button>
-          </div>
-        </form>
-        {% else %}
-        <h3 class="font-bold text-xl">
-          Your file has successfully been processed. Proceed to search
-        </h3>
-        {% endif %}
-      </section>
-      <section class="search bg-gray-100 p-4">
-        <h2 class="text-2xl font-bold mb-4">Search Subtitles</h2>
-        <form class="w-full" action="/search" method="post">
-          {% csrf_token %}
-          <input hidden type="number" name="videoId" value="{{videoId}}" />
-          <input class="py-2 px-2 m-0" type="text" name="phrase" id="search" />
-          <button
-            id="submitBtn"
-            type="submit"
-            class="btn py-2 m-0 px-2 bg-green-400"
-          >
-            Search
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body>
+  <header class="p-4 text-center bg-green-400">
+    <h1 class="text-3xl font-bold mb-4">SubEx</h1>
+    <p>Your video subtitle search engine</p>
+  </header>
+  <main>
+    <section class="uploadSection p-4">
+      {% if processed is None %}
+      <h2 class="text-2xl mb-4 font-bold">Upload a video</h2>
+      <form action="/" enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        <input class="bg-green-300 mb-4" type="file" name="video" id="video" />
+        <br />
+        <div class="btnContainer">
+          <button id="videoUpload" class="btn bg-green-400 rounded-xl px-8 py-2 font-bold" type="submit">
+            Upload
           </button>
-        </form>
-      </section>
-      {% if result is not None %}
-      <section class="populateResults p-4">
-        <h2 class="text-2xl font-bold">Results({{result|length}})</h2>
-        <div class="cards">
-          {% for item in result %}
-          <div class="card mt-3">
-            <div class="header font-bold p-3 bg-green-400">
-              <p>
-                {{item.start_time}}
-                <span class="font-normal">to </span> {{item.end_time}}
-              </p>
-            </div>
-            <div class="text p-3 bg-green-200">{{item.text}}</div>
-          </div>
-          {% endfor %}
         </div>
-      </section>
+      </form>
+      {% else %}
+      <h3 class="font-bold text-xl">
+        Your file has successfully been processed. Proceed to search
+      </h3>
+      <h2 class="text-2xl">
+        Your video
+      </h2>
+      <video id="video" src={{videoName}} controls></video>
       {% endif %}
-    </main>
-    {% comment %}
-    <script>
-      const btnContainer = document.querySelector(
-        ".uploadSection .btnContainer"
-      );
-      const uploadForm = document.querySelector(".uploadSection form");
-      const uploadSection = document.querySelector(".uploadSection");
-      btnContainer.onclick = (e) => {
-        console.log(uploadForm);
-        uploadSection.innerHTML = `<div class='container flex justify-center items-center'><p class='animate-spin mr-4 border-green-500 border-2 bl-white w-[50px] h-[50px] p-2 rounded-[50%]' style="border-left: white;"></p><div>Uploading file...</div></div>
-          `;
-      };
-    </script>
-    {% endcomment %}
-  </body>
+    </section>
+    <section class="search bg-gray-100 p-4">
+      <h2 class="text-2xl font-bold mb-4">Search Subtitles</h2>
+      <form class="w-full" action="/search" method="post">
+        {% csrf_token %}
+        <input hidden type="number" name="videoId" value="{{videoId}}" />
+        <input class="py-2 px-2 m-0" type="text" name="phrase" id="search" />
+        <button id="submitBtn" type="submit" class="btn py-2 m-0 px-2 bg-green-400">
+          Search
+        </button>
+      </form>
+    </section>
+    {% if result is not None %}
+    <section class="populateResults p-4">
+      <h2 class="text-2xl font-bold">Results({{result|length}})</h2>
+      <div class="cards">
+        {% for item in result %}
+        <div class="card mt-3">
+          <div onclick='jumpToTime("{{item.start_time}}")'  class="header font-bold p-3 bg-green-400" >
+            <p>
+              {{item.start_time}}
+              <span class="font-normal">to </span> {{item.end_time}}
+            </p>
+          </div>
+          <div class="text p-3 bg-green-200">{{item.text}}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </main>
+  {% comment %}
+
+  {% endcomment %}
+  <script src="{% static 'scripts/index.js' %}"></script>
+</body>
+
 </html>

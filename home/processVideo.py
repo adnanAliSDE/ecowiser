@@ -11,12 +11,10 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("subtitles")
 
 # for windows
-# binPath = (
-#     "C:\\Users\\ansari\Downloads\\CCExtractor_win_portable\\ccextractorwinfull.exe"
-# )
+binPath = r"C:\Program Files (x86)\CCExtractor\ccextractorwinfull.exe"
 
 # for linux
-binPath = "ccextractor"
+# binPath = "ccextractor"
 
 
 def writeSubtitles(fileName, output="output.srt"):
@@ -86,9 +84,10 @@ def parse_subtitles(rawSubtitleFile):
 
 def saveVideoToS3(videoName):
     saved = False
-    s3 = boto3.resource("s3")
-    data = open(videoName, "rb")
-    s3.Bucket("ecowiser-assignment").put_object(Key=videoName, Body=data)
+    # s3 = boto3.resource("s3")
+    # data = open(videoName, "rb")
+    # s3.Bucket("ecowiser-assignment").put_object(Key=videoName, Body=data)
+    print(videoName)
     saved = True
     return saved
 
@@ -97,7 +96,7 @@ def saveSubsToDB(videoName, subtitleFile, videoId):
     saved = False
     subtitles = parse_subtitles(subtitleFile)
     table.put_item(
-        Item={"videoId": videoId, "title": videoName, "subtitles": subtitles}
+        Item={"videoId": f"{videoId}", "title": videoName, "subtitles": subtitles}
     )
     saved = True
     return saved

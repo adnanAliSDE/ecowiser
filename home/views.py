@@ -60,10 +60,12 @@ def index(request):
         videoName = ""
         if videoFormat in videoFormats:
             videoId = table.item_count + 1  # get from DB
-            videoName = f"vId_{videoId}_{title}"
+            videoName = f"static/vId_{videoId}_{title}"
+            print(videoName)
             with open(videoName, "wb+") as f:
                 for chunk in video:
                     f.write(chunk)
+
             subtitleFile = f"{videoId}_{randomValue}_{title}.srt"
 
             writeStatus = processVideo.writeSubtitles(videoName, subtitleFile)
@@ -72,6 +74,7 @@ def index(request):
             processVideo.saveVideoToS3(videoName)
 
             context = {
+                "videoName":videoName,
                 "videoId": videoId,
                 "result": [],
                 "title": title,
@@ -80,13 +83,15 @@ def index(request):
 
             processVideo.saveSubsToDB(videoName, subtitleFile, videoId)
 
-            os.remove(videoName)
+            # os.remove(videoName)
             os.remove(subtitleFile)
+
             return render(request, "index.html", context)
         else:
             return HttpResponse(
                 "<h1>OOPs! an error occured</h1><p>Invalid data supplied</p> "
             )
+        
     return render(request, "index.html")
 
 
@@ -94,7 +99,7 @@ def search(request):
     if request.method == "POST":
         videoId = request.POST["videoId"]
         phrase = request.POST["phrase"]
-        videoId = int(videoId)
+        videoId = videoId
         result = processVideo.searchPhrase(phrase, videoId)
         context = {"result": result, "processed": True, "videoId": videoId}
         return render(request, "index.html", context)
