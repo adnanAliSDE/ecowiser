@@ -71,7 +71,7 @@ def index(request):
             writeStatus = processVideo.writeSubtitles(videoName, subtitleFile)
             if writeStatus == "empty file":
                 return HttpResponse("Your file doesn't have any subtitles<a href='/'>Go back</a>")
-            processVideo.saveVideoToS3(videoName)
+            # processVideo.saveVideoToS3(videoName)
 
             context = {
                 "videoName":videoName,

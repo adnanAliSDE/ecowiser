@@ -96,7 +96,7 @@ def saveSubsToDB(videoName, subtitleFile, videoId):
     saved = False
     subtitles = parse_subtitles(subtitleFile)
     table.put_item(
-        Item={"videoId": f"{videoId}", "title": videoName, "subtitles": subtitles}
+        Item={"videoId": str(videoId), "title": videoName, "subtitles": subtitles}
     )
     saved = True
     return saved
