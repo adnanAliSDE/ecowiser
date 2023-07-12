@@ -58,9 +58,11 @@ def index(request):
         title = str(video)
         videoFormat = title.split(".")[-1]
         videoName = ""
+
         if videoFormat in videoFormats:
             videoId = table.item_count + 1  # get from DB
-            videoName = f"static/vId_{videoId}_{title}"
+            print(videoId)
+            videoName = f"static/videos/vId_{videoId}_{title}"
             print(videoName)
             with open(videoName, "wb+") as f:
                 for chunk in video:
@@ -69,14 +71,16 @@ def index(request):
             subtitleFile = f"{videoId}_{randomValue}_{title}.srt"
 
             writeStatus = processVideo.writeSubtitles(videoName, subtitleFile)
-            if writeStatus == "empty file":
-                return HttpResponse("Your file doesn't have any subtitles<a href='/'>Go back</a>")
+            if writeStatus in {"empty file", "failed"}:
+                return HttpResponse(
+                    "Your file doesn't have any subtitles<a href='/'>Go back</a>"
+                )
             # processVideo.saveVideoToS3(videoName)
 
             context = {
-                "videoName":videoName,
+                "videoName": videoName,
                 "videoId": videoId,
-                "result": [],
+                "result": None,
                 "title": title,
                 "processed": True,
             }
@@ -91,17 +95,24 @@ def index(request):
             return HttpResponse(
                 "<h1>OOPs! an error occured</h1><p>Invalid data supplied</p> "
             )
-        
+
     return render(request, "index.html")
 
 
 def search(request):
     if request.method == "POST":
         videoId = request.POST["videoId"]
+        videoName = request.POST["vName"]
         phrase = request.POST["phrase"]
-        videoId = videoId
+        result = []
         result = processVideo.searchPhrase(phrase, videoId)
-        context = {"result": result, "processed": True, "videoId": videoId}
+        context = {
+            "results": result,
+            "processed": True,
+            "videoId": videoId,
+            "videoName": videoName,
+        }
+        print(videoId,phrase)
         return render(request, "index.html", context)
 
     else:

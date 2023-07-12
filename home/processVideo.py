@@ -35,7 +35,7 @@ def writeSubtitles(fileName, output="output.srt"):
     elif data != "":
         return "success"
     else:
-        raise ValueError("Process failed")
+        return "failed"
 
 
 def getSubtitles(videoId):
@@ -49,7 +49,6 @@ def getSubtitles(videoId):
 def searchPhrase(phrase, videoId):
     subtitles = getSubtitles(videoId)
     result = []
-    # searching and returning the items - case insensitive search
     for subtitle in subtitles:
         if phrase.lower() in subtitle["text"].lower():
             result.append(subtitle)

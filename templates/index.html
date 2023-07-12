@@ -1,106 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SubEx.io | Search your video titles</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href={% static 'styles/index.css' %}>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SubEx.io | Search your video titles</title>
-  {% load static %}
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href={% static 'styles/index.css' %}>
-</head>
-
-<body>
-  <header class="p-4 text-center bg-green-400">
-    <h1 class="text-3xl font-bold mb-4">SubEx</h1>
-    <p>Your video subtitle search engine</p>
-  </header>
-  <main>
-    <section class="uploadSection p-4">
-      {% if processed is None %}
-      <h2 class="text-2xl mb-4 font-bold">Upload a video</h2>
-      <form action="/" enctype="multipart/form-data" method="post">
-        {% csrf_token %}
-        <input class="bg-green-300 mb-4" type="file" name="video" id="video" />
-        <br />
-        <div class="btnContainer">
-          <button id="videoUpload" class="btn bg-green-400 rounded-xl px-8 py-2 font-bold" type="submit">
-            Upload
-          </button>
-        </div>
-      </form>
-      {% else %}
-      <h3 class="font-bold text-xl">
-        Your file has successfully been processed. Proceed to search
-      </h3>
-      <h2 class="text-2xl">
-        Your video
-      </h2>
-{% comment %} Custom Video Player {% endcomment %}
-<div class="player p-4">
-  <video class="player__video viewer" src={{videoName}}></video>
-  <div class="player__controls">
-    <div class="progress">
-     <div id="highlighter"></div>
-     <div class="progress__filled">
-     </div>
-    </div>
-    <button class="player__button toggle" title="Toggle Play">►</button>
-    <input type="range" name="volume" class="player__slider" min="0" max="1" step="0.05" value="1">
-    <input type="range" name="playbackRate" class="player__slider" min="0.5" max="2" step="0.1" value="1">
-    <button data-skip="-10" class="player__button">« 10s</button>
-    <button data-skip="25" class="player__button">25s »</button>
-  </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-      {% endif %}
-    </section>
-    <section class="search bg-gray-100 p-4">
-      <h2 class="text-2xl font-bold mb-4">Search Subtitles</h2>
-      <form class="w-full" action="/search" method="post">
-        {% csrf_token %}
-        <input hidden type="number" name="videoId" value="{{videoId}}" />
-        <input class="py-2 px-2 m-0" type="text" name="phrase" id="search" />
-        <button id="submitBtn" type="submit" class="btn py-2 m-0 px-2 bg-green-400">
-          Search
-        </button>
-      </form>
-    </section>
-    {% if result is not None %}
-    <section class="populateResults p-4">
-      <h2 class="text-2xl font-bold">Results({{result|length}})</h2>
-      <div class="cards">
-        {% for item in result %}
-        <div class="card mt-3">
-          <div onclick='jumpToTime("{{item.start_time}}")'  class="header font-bold p-3 bg-green-400" >
-            <p>
-              {{item.start_time}}
-              <span class="font-normal">to </span> {{item.end_time}}
-            </p>
+  <body>
+    <header class="p-4 text-center bg-green-400">
+      <h1 class="text-3xl font-bold mb-4">SubEx</h1>
+      <p>Your video subtitle search engine</p>
+    </header>
+    <main>
+      <section class="uploadSection p-4">
+        {% if processed is None %}
+        <h2 class="text-2xl mb-4 font-bold">Upload a video</h2>
+        <form action="/" enctype="multipart/form-data" method="post">
+          {% csrf_token %}
+          <input
+            class="bg-green-300 mb-4"
+            type="file"
+            name="video"
+            id="video"
+          />
+          <br />
+          <div class="btnContainer">
+            <button
+              id="videoUpload"
+              class="btn bg-green-400 rounded-xl px-8 py-2 font-bold"
+              type="submit"
+            >
+              Upload
+            </button>
           </div>
-          <div class="text p-3 bg-green-200">{{item.text}}</div>
+        </form>
+        {% else %}
+        <h3 class="font-bold text-xl">
+          Your file has successfully been processed. Proceed to search
+        </h3>
+        <p class="hidden videoName">{{videoName}}</p>
+        <video class="viewer" controls>
+        </video>
+        <!-- <div class="player"> 
+          <video class="player__video viewer" src=""></video>
+          <div class="player__controls">
+            <div class="progress">
+              <div id="highlighter"></div>
+              <div class="progress__filled"></div>
+            </div>
+            <button class="player__button toggle" title="Toggle Play">►</button>
+            <input
+              type="range"
+              name="volume"
+              class="player__slider"
+              min="0"
+              max="1"
+              step="0.05"
+              value="1"
+            />
+            <input
+              type="range"
+              name="playbackRate"
+              class="player__slider"
+              min="0.5"
+              max="2"
+              step="0.1"
+              value="1"
+            />
+            <button data-skip="-10" class="player__button">« 10s</button>
+            <button data-skip="25" class="player__button">25s »</button>
+          </div>
+        </div>  -->
+        {% endif %}
+      </section>
+
+      <section class="search bg-gray-100 p-4">
+        <h2 class="text-2xl font-bold mb-4">Search Subtitles</h2>
+        <form class="w-full" action="search" method="post">
+          {% csrf_token %}
+          <input hidden type="number" name="videoId" value="{{videoId}}" />
+          <input hidden type="text" name="vName" value={{videoName}} />
+          <input class="py-2 px-2 m-0" type="text" name="phrase" id="search" />
+          <button id="submitBtn" type="submit" class="btn py-2 m-0 px-2 bg-green-400">Search</button>
+        </form>
+      </section>
+
+{% if results is not None %}
+      <section class="populateResults p-4">
+        <h2 class="text-2xl font-bold">Results({{results|length}})</h2>
+        <div class="cards">
+          {% for item in results %}
+          <div class="card mt-3">
+            <div
+              onclick='jumpToTime("{{item.start_time}}")'
+              class="header font-bold p-3 bg-green-400"
+            >
+              <p>
+                {{item.start_time}}
+                <span class="font-normal">to </span> {{item.end_time}}
+              </p>
+            </div>
+            <div class="text p-3 bg-green-200">{{item.text}}</div>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-      </div>
-    </section>
-    {% endif %}
-  </main>
-  {% comment %}
-
-  {% endcomment %}
-  <script src="{% static 'scripts/index.js' %}"></script>
-  <script src="{% static 'scripts/videoPlayer.js' %}"></script>
-
-</body>
-
+      </section>
+      {% endif %}
+    </main>
+ <script src="{% static 'scripts/index.js' %}"></script>
+  </body>
 </html>
